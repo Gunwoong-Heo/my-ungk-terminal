@@ -4,6 +4,8 @@ import java.awt.List;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,30 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@PostMapping("/login")
+	public String login(String userId, String password, HttpSession session) {
+		User user = userRepository.findByUserId(userId);
+		
+		if(user == null) {
+			System.out.println("login faile! userId doesn't exist!");
+			return "redirect:/user/loginForm";
+		}
+		if(!password.equals(user.getPassword())) {
+			System.out.println("login faile! password not correct!");
+			return "redirect:/user/loginForm";
+		}
+		
+		System.out.println("login Success!");
+		session.setAttribute("user", user);
+		
+		return "redirect:/";
+	}
+	
+	@GetMapping("/loginForm")	
+	public String loginForm() {
+		return "user/loginForm";
+	}
+	
 	@GetMapping("/form")
 	public String form() {
 		return "user/form";
@@ -41,7 +67,7 @@ public class UserController {
 		return "user/list";
 	}
 	
-	@GetMapping("/{id}/form")
+	@GetMapping("/{id}/form") 
 	public String updateForm(@PathVariable Long id, Model model) {
 		User user = userRepository.findById(id).get();
 		model.addAttribute("user", user);
