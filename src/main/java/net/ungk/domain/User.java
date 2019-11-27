@@ -19,8 +19,12 @@ public class User {
 	private String name;
 	private String email;
 	
-	public long getId() {
-		return id;
+	
+	public boolean matchId (Long newId) {
+		if (newId == null) {
+			return false;
+		}
+		return newId.equals(id);
 	}
 	
 	public void setUserId(String userId) {
@@ -31,8 +35,11 @@ public class User {
 		this.password = password;
 	}
 	
-	public String getPassword() {
-		return password;
+	public boolean matchPassword(String newPassword) {
+		if(newPassword == null) {
+			return false;
+		}
+		return newPassword.equals(password);
 	}
 	
 	public void setName(String name) {
