@@ -30,21 +30,27 @@ public class UserController {
 		User user = userRepository.findByUserId(userId);
 		
 		if(user == null) {
-			System.out.println("login faile! userId doesn't exist!");
-			return "redirect:/user/loginForm";
+			System.out.println("login faile! userId not correct");
+			return "redirect:/users/loginForm";
 		}
 		if(!password.equals(user.getPassword())) {
 			System.out.println("login faile! password not correct!");
-			return "redirect:/user/loginForm";
+			return "redirect:/users/loginForm";
 		}
 		
 		System.out.println("login Success!");
-		session.setAttribute("user", user);
+		session.setAttribute("sessionedUser", user);
 		
 		return "redirect:/";
 	}
 	
-	@GetMapping("/loginForm")	
+	@GetMapping("/logout")
+	public String logout(HttpSession session) {
+		session.removeAttribute("sessionedUser");
+		return "redirect:/";
+	}
+	
+	@GetMapping("/loginForm")
 	public String loginForm() {
 		return "user/loginForm";
 	}
@@ -67,19 +73,39 @@ public class UserController {
 		return "user/list";
 	}
 	
-	@GetMapping("/{id}/form") 
-	public String updateForm(@PathVariable Long id, Model model) {
+	@GetMapping("/{id}/form")
+	public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+		Object tempUser = session.getAttribute("sessionedUser");
+		if (tempUser == null) {
+			return "redirect:/users/loginForm";
+		}
+		
+		User sessionedUser = (User) tempUser;
+		if (!id.equals(sessionedUser.getId())) {
+			throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+		}
+		
 		User user = userRepository.findById(id).get();
 		model.addAttribute("user", user);
-		System.out.println(user);
 		return "user/updateForm";
 	}
 	
 	@PostMapping("/{id}")
-	public String update(@PathVariable Long id, User newUser) {
+	public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
+		
+		Object tempUser = session.getAttribute("sessionedUser");
+		if (tempUser == null) {
+			return "redirect:/users/loginForm";
+		}
+		
+		User sessionedUser = (User) tempUser;
+		if (!id.equals(sessionedUser.getId())) {
+			throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+		}
+		
 		//사용자가 있으면 update, 없으면 insert를 해주는 방식으로 동작한다.
 		User user = userRepository.findById(id).get();
-		user.update(newUser);
+		user.update(updatedUser);
 		userRepository.save(user);
 //		session.setAttribute(HttpSessionUtils.USER_SESSION_KEY,user);
 		return "redirect:/users";
