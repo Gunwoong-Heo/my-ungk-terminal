@@ -19,7 +19,6 @@ public class User {
 	private String name;
 	private String email;
 	
-	
 	public boolean matchId (Long newId) {
 		if (newId == null) {
 			return false;
@@ -29,6 +28,10 @@ public class User {
 	
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+	
+	public String getUserId() {
+		return userId;
 	}
 	
 	public void setPassword(String password) {

@@ -80,7 +80,7 @@ public class UserController {
 		}
 		
 		User sessionedUser = HttpSessionUtils.getUserFromSession(session);
-		if (sessionedUser.matchId(id)) {
+		if (!sessionedUser.matchId(id)) {
 			throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
 		}
 		
