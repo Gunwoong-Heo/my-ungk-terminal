@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="kr">
-<head>
-	{{> include/header}}
+<head>{{> include/header}}
 </head>
 <body>
 	{{> include/navigation}}
-	
 	<div class="container" id="main">
 		<div class="col-md-12 col-sm-12 col-lg-10 col-lg-offset-1">
 			<div class="panel panel-default qna-list">
@@ -15,12 +13,12 @@
 						<div class="wrap">
 							<div class="main">
 								<strong class="subject">
-									<a href="./qna/show.html">{{title}}</a>
+									<a href="/questions/{{id}}">{{title}}</a>
 								</strong>
 								<div class="auth-info">
 									<i class="icon-add-comment"></i>
-									<span class="time">2016-01-15 18:47</span>
-									<a href="./user/profile.html" class="author">{{writer}}</a>
+									<span class="time">{{formattedCreateDate}}</span>
+									<a href="./user/profile.html" class="author">{{writer.userId}}</a>
 								</div>
 								<div class="reply" title="댓글">
 									<i class="icon-reply"></i>
@@ -140,6 +138,6 @@
   </div>
 </div>
 -->
-{{> include/footer}}
+	{{> include/footer}}
 </body>
 </html>
