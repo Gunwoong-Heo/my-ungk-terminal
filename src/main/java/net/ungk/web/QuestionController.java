@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import net.ungk.domain.Question;
 import net.ungk.domain.QuestionRepository;
+import net.ungk.domain.Result;
 import net.ungk.domain.User;
 
 @Controller
@@ -49,27 +50,25 @@ public class QuestionController {
 
 	@GetMapping("/{id}/form")
 	public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-		
-		try {
-			Question question = questionRepository.findById(id).get();
-			hasPermission(session, question);
-			model.addAttribute("question", question);
-			return "qna/updateForm";
-		} catch (IllegalStateException e) {
-			model.addAttribute("errorMessage", e.getMessage());
+		Question question = questionRepository.findById(id).get();
+		Result result = valid(session, question);
+		if (!result.isValid()) {
+			model.addAttribute("errorMessage", result.getErrorMessage());
 			return "user/loginForm";
 		}
-		
-//		if (!HttpSessionUtils.isLoginUser(session)) {
-//			return "user/loginForm";
-//		}
-//		User loginUser = HttpSessionUtils.getUserFromSession(session);
-//		Question question = questionRepository.findById(id).get();
-//		if (!question.isSameWriter(loginUser)) {
-//			return "user/loginForm";
-//		}
-//		model.addAttribute("question", question);
-//		return "qna/updateForm";
+		model.addAttribute("question", question);
+		return "qna/updateForm";
+	}
+
+	private Result valid(HttpSession session, Question question) {
+		if (!HttpSessionUtils.isLoginUser(session)) {
+			return Result.fail("로그인이 필요합니다.");
+		}
+		User loginUser = HttpSessionUtils.getUserFromSession(session);
+		if (!question.isSameWriter(loginUser)) {
+			return Result.fail("자신이 쓴 글만 수정,삭제할 수 있습니다.");
+		}
+		return Result.ok();
 	}
 
 	private boolean hasPermission(HttpSession session, Question question) {
@@ -85,53 +84,30 @@ public class QuestionController {
 
 	@PostMapping("/{id}")
 	public String update(@PathVariable Long id, String title, String contents, Model model, HttpSession session) {
-		try {
-			Question question = questionRepository.findById(id).get();
-			hasPermission(session, question);
-			question.update(title, contents);
-			questionRepository.save(question);
-			return String.format("redirect:/questions/%d", id);
-		} catch (IllegalStateException e) {
-			model.addAttribute("errorMessage", e.getMessage());
+
+		Question question = questionRepository.findById(id).get();
+		Result result = valid(session, question);
+		if (!result.isValid()) {
+			model.addAttribute("errorMessage", result.getErrorMessage());
 			return "user/loginForm";
 		}
-		
-//		if (!HttpSessionUtils.isLoginUser(session)) {
-//			return "users/loginForm";
-//		}
-//		User loginUser = HttpSessionUtils.getUserFromSession(session);
-//		Question question = questionRepository.findById(id).get();
-//		if (!question.isSameWriter(loginUser)) {
-//			return "users/loginForm";
-//		}
-//
-//		question.update(title, contents);
-//		questionRepository.save(question);
-//		return String.format("redirect:/questions/%d", id);
+		question.update(title, contents);
+		questionRepository.save(question);
+		return String.format("redirect:/questions/%d", id);
 	}
 
 	@PostMapping("/{id}/delete")
 	public String delete(@PathVariable Long id, HttpSession session, Model model) {
-		try {
-			Question question = questionRepository.findById(id).get();
-			hasPermission(session, question);
-			questionRepository.delete(question);
-			return "redirect:/";
-		} catch (IllegalStateException e) {
-			model.addAttribute("errorMessage", e.getMessage());
+
+		Question question = questionRepository.findById(id).get();
+		Result result = valid(session, question);
+		if (!result.isValid()) {
+			model.addAttribute("errorMessage", result.getErrorMessage());
 			return "user/loginForm";
 		}
-		
-//		if (!HttpSessionUtils.isLoginUser(session)) {
-//			return "user/loginForm";
-//		}
-//		User loginUser = HttpSessionUtils.getUserFromSession(session);
-//		Question question = questionRepository.findById(id).get();
-//		if (!question.isSameWriter(loginUser)) {
-//			return "user/loginForm";
-//		}
-//
-//		questionRepository.delete(question);
-//		return "redirect:/";
+
+		questionRepository.delete(question);
+		return "redirect:/";
 	}
+	
 }
