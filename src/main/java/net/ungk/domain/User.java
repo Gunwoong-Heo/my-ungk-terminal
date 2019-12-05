@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty
-	private long id;
+public class User extends AbstractEntity {
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	@JsonProperty
+//	private long id;
 	
 	@Column(nullable = false, length = 20, unique = true)
 	@JsonProperty
@@ -26,12 +26,12 @@ public class User {
 	@JsonProperty
 	private String email;
 	
-	public boolean matchId (Long newId) {
-		if (newId == null) {
-			return false;
-		}
-		return newId.equals(id);
-	}
+//	public boolean matchId (Long newId) {
+//		if (newId == null) {
+//			return false;
+//		}
+//		return newId.equals(id);
+//	}
 	
 	public void setUserId(String userId) {
 		this.userId = userId;
@@ -43,6 +43,13 @@ public class User {
 	
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public boolean matchId (Long newId) {
+		if (newId == null) {
+			return false;
+		}
+		return newId.equals(getId());
 	}
 	
 	public boolean matchPassword(String newPassword) {
@@ -66,31 +73,31 @@ public class User {
 		this.email = newUser.email;
 	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + (int) (id ^ (id >>> 32));
+//		return result;
+//	}
+//	
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		User other = (User) obj;
+//		if (id != other.id)
+//			return false;
+//		return true;
+//	}
 	
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+		return "User [" + super.toString() + ", userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
 	}
 	
 }
