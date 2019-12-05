@@ -16,6 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.ungk.web.HttpSessionUtils;
 
 @Entity
@@ -23,21 +25,29 @@ public class Question {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonProperty
 	private long id;
 
 	@ManyToOne
 	@JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
+	@JsonProperty
 	private User writer;
 	
+	@JsonProperty
 	private String title;
 	
 	@Lob
+	@JsonProperty
 	private String contents;
+	
+	@JsonProperty
+	private Integer countOfAnswers = 0;
 
 	private LocalDateTime createDate;
 	
 	@OneToMany(mappedBy = "question")
-	@OrderBy("id ASC")
+//	@OrderBy("createDate DESC")
+	@OrderBy("id DESC")
 	private List<Answer> answers;
 	
 	public Question() {
@@ -68,6 +78,16 @@ public class Question {
 	public boolean isSameWriter(User loginUser) {
 		// TODO Auto-generated method stub
 		return this.writer.equals(loginUser);
+	}
+
+	public void addAnswer() {
+		// TODO Auto-generated method stub
+		this.countOfAnswers += 1;
+	}
+	
+	public void deleteAnswer() {
+		// TODO Auto-generated method stub
+		this.countOfAnswers -= 1;
 	}
 
 //	@Override

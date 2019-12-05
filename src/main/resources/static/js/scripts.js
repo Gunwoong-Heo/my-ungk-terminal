@@ -1,9 +1,71 @@
+$(".answer-write input[type=submit]").click(addAnswer);
+
+function addAnswer(e) {
+	e.preventDefault();
+	console.log("click!");
+
+	var queryString = $(".answer-write").serialize();
+	console.log("query : " + queryString);
+
+	var url = $(".answer-write").attr("action");
+	console.log("url : " + url);
+
+	$.ajax({
+		type : 'post',
+		url : url,
+		data : queryString,
+		dataType : 'json',
+		error : onError,
+		success : onSuccess
+	});
+}
+
+function onError() { 
+	console.log("fail")
+}
+
+function onSuccess(data, status) {
+	console.log(data);
+	var answerTemplate = $("#answerTemplate").html();
+	console.log(answerTemplate);
+	var template = answerTemplate.format(data.writer.userId, data.formattedCreateDate, data.contents, data.question.id, data.id);
+	$(".qna-comment-slipp-articles").prepend(template);
+	$(".answer-write textarea").val("");
+}
+
+// 하단과 같이 처리하면, 댓글 작성 직후 새로고침을 하지 않고 지우면 에러가 난다.
+//$("a.link-delete-article").click(deleteAnswer);
+$(document).on('click', '.link-delete-article', deleteAnswer);
+
+function deleteAnswer(e) {
+	e.preventDefault();
+	var deleteBtn = $(this);
+	var url = deleteBtn.attr("href");
+	console.log("url : " + url);
+
+	$.ajax({
+		type : 'post',
+		url : url,
+		dataType : 'json',
+		error : function(xhr, status) {
+			console.log("error");
+		},
+		success : function(data, status) {
+			if(data.valid) {
+				deleteBtn.closest("article").remove();
+			} else {
+				alert(data.errorMessage);
+			}
+		}
+	});
+}
+
 String.prototype.format = function() {
-  var args = arguments;
-  return this.replace(/{(\d+)}/g, function(match, number) {
-    return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-        ;
-  });
-};
+	var args = arguments;
+	return this.replace(/{(\d+)}/g, function(match, number) {
+	  return typeof args[number] != 'undefined'
+		  ? args[number]
+		  : match
+		  ;
+	});
+  };
